@@ -8,6 +8,10 @@ This is the Main Class Which will be used to execute the function calls for func
 from telegram.ext import Updater
 updater = Updater(token='TOKEN', use_context=True)
 import logging
+from telegram import Update
+from telegram.ext import CallbackContext
+
+
 
 
 class Main:
@@ -17,3 +21,7 @@ class Main:
                      level=logging.INFO)
     # This is a local instance of the dispatcher class
     dispatcher = updater.dispatcher
+    def start(update: Update, context: CallbackContext):
+        context.bot.send_message(chat_id=update.effective_chat.id, text="I'm a bot, please talk to me!")
+
+    
