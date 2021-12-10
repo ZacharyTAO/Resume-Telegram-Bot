@@ -1,10 +1,12 @@
 # .hackproject
 
 users: employer and potential employee
+
 responses: questions and answers
 
 frontend py file: describes chatbot actions
-backend py file:interacts with database (DBhelper)
+
+backend py file: interacts with database (DBhelper)
 
 database: aws rds and mysql
 
