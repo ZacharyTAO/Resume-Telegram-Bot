@@ -104,4 +104,4 @@ def parse_sql(filename):
     return stmts
 
 db = DBHelper()
-print(db.get_fullname("ardgoh"))
+
