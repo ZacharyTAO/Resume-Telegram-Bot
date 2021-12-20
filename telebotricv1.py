@@ -13,7 +13,7 @@ from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 import os
 from dbhelper2 import DBHelper 
 
-TOKEN = '5076898105:AAFMEKPzXB8ZMiFXu4-NDPcE53lfYHibRgw'
+TOKEN = '2067043186:AAF8oNqLznHwDSix9OGnMDGHAMKgnbGyWqE'
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 
