@@ -7,6 +7,7 @@ from telegram.ext import (
     MessageHandler,
     Filters,
     ConversationHandler,
+    CallbackQueryHandler,
     CallbackContext,
 )
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
@@ -97,6 +98,48 @@ def main():
             EXISTING: [MessageHandler(Filters.command, viewresume)]
         },
         fallbacks = [CommandHandler('start', start)]
+    )
+
+    profile_handler = ConversationHandler(
+        entry_points = [CommandHandler('profile', profile)],
+        states = {
+            "no_profile_name": [MessageHandler(Filters.text, create_name)],
+            "no_profile_number": [MessageHandler(Filters.text, create_number)],
+            "no_profile_email": [MessageHandler(Filters.text, create_email)],
+            "edit_main": [
+                CallbackQueryHandler(handle_links, pattern="links"),
+                CallbackQueryHandler(handle_qna, pattern="qna"),
+                CallbackQueryHandler(handle_particulars, pattern="particulars"),
+                CallbackQueryHandler(done, pattern="done")
+            ],
+            "edit_particulars": [
+                CallbackQueryHandler(edit_name, pattern="edit_name"),
+                CallbackQueryHandler(edit_number, pattern="edit_number"),
+                CallbackQueryHandler(edit_email, pattern="edit_email"),
+                CallbackQueryHandler(back, pattern="back"),
+                CallbackQueryHandler(done, pattern="done")
+            ],
+            "edit_link_main": [
+                CallbackQueryHandler(edit_link, pattern="^1-3"),
+                CallbackQueryHandler(back, pattern="back"),
+                CallbackQueryHandler(done, pattern="done")
+            ],
+            "edit_link_description":[
+                MessageHandler(Filters.text, edit_link_description)
+            ],
+            "edit_link_url": [
+                MessageHandler(Filters.text, edit_link_url)
+            ],
+            "edit_qna": [
+                CallbackQueryHandler(edit_qna, pattern="^1-3"),
+                CallbackQueryHandler(back, pattern="back"),
+                CallbackQueryHandler(done, pattern="done")
+            ],
+            "answer": [
+                MessageHandler(Filters.text, upload_answer)
+            ]
+        },
+        fallbacks=[CommandHandler("done", done)]
     )
     dp.add_handler(conv_handler)
     dp.add_error_handler(error)
