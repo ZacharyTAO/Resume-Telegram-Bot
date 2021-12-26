@@ -10,7 +10,7 @@ class DBHelper:
         # self.db = "telechatbot"
         self.host = "localhost"
         self.user = "root"
-        self.password = ""
+        self.password = "ZheTao99!"
         self.db = "telebot"
         self.port = 3306
     
@@ -72,6 +72,13 @@ class DBHelper:
         var = (phone, username)
         self.execute(sql, var)
 
+    def get_profile(self,username):
+        sql = "SELECT * from users WHERE username = %s"
+        var = (username)
+        result = self.fetchall(sql,var)
+        return result
+
+
 
 
 def parse_sql(filename):
@@ -104,4 +111,6 @@ def parse_sql(filename):
     return stmts
 
 db = DBHelper()
+print(db.get_profile("zacgxx"))
+
 

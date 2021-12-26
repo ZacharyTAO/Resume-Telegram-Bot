@@ -13,6 +13,8 @@ from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 import os
 from dbhelper2 import DBHelper 
 
+
+
 TOKEN = '2067043186:AAF8oNqLznHwDSix9OGnMDGHAMKgnbGyWqE'
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
@@ -48,6 +50,7 @@ def start(update: Update, context: CallbackContext) -> int:
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
         )
         return EXISTING
+
         
 def createprofile(update: Update, context: CallbackContext) -> int:
     fullname = update.message.text
@@ -76,10 +79,17 @@ def skipphone(update: Update, context: CallbackContext) -> int:
     )
     return EXISTING
 
-def viewresume(update: Update, context: CallbackContext) -> int:
-    user_data = update.message.text
-    update.message.reply_text(user_data)
-    return ConversationHandler.END
+
+def viewresume(update:Update, context: CallbackContext) -> int:
+    username = update.message.chat.username
+    retrieveprofile = db.get_profile(username)[0]
+    name = retrieveprofile['fullname']
+    contact = retrieveprofile['contact_no']
+    email = retrieveprofile['email']
+    update.message.reply_text("Testing...")
+    update.message.reply_text(name)
+
+    # return (name, contact,email)
 
 def error(update: Update, context: CallbackContext):
     """Log Errors caused by Updates."""
@@ -94,7 +104,7 @@ def main():
         states = {
             CREATEPROFILE: [MessageHandler(Filters.text, createprofile)],
             ADDPHONE: [MessageHandler(Filters.text, addphone)],
-            EXISTING: [MessageHandler(Filters.command, viewresume)]
+            EXISTING: [MessageHandler(Filters.text, deciding)]
         },
         fallbacks = [CommandHandler('start', start)]
     )
