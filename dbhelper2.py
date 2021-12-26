@@ -78,6 +78,12 @@ class DBHelper:
         result = self.fetchall(sql,var)
         return result
 
+    def displayprofile(self,username):
+        sql = "SELECT fullname, contact_no, email FROM users WHERE username = %s"
+        var = (username)
+        result =self.fetch(sql, var)
+        return result 
+
 
 
 

@@ -13,8 +13,11 @@ from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 import os
 from dbhelper2 import DBHelper 
 
+<<<<<<< Updated upstream
 
 
+=======
+>>>>>>> Stashed changes
 TOKEN = '5093335972:AAF5XKRoWd9AEVycikG7CzPljBo8RpKqBtE'
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
