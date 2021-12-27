@@ -347,7 +347,7 @@ def main() -> None:
     dispatcher = updater.dispatcher
 
     conv_handler = ConversationHandler(
-        entry_points=[CommandHandler('start', main_menu)],
+        entry_points=[CommandHandler('edit', main_menu)],
         states={
             FIRST: [
                 CallbackQueryHandler(particulars, pattern='^' + str(PARTICULARS) + '$'),
@@ -384,7 +384,7 @@ def main() -> None:
                 CallbackQueryHandler(question4, pattern='^' + str(Q4) + '$'), 
             ],
         },
-        fallbacks=[CommandHandler('start', main_menu)],
+        fallbacks=[CommandHandler('edit', main_menu)],
     )
 
     # Add ConversationHandler to dispatcher that will be used for handling updates
