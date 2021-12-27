@@ -10,7 +10,7 @@ class DBHelper:
         # self.db = "telechatbot"
         self.host = "localhost"
         self.user = "root"
-        self.password = ""
+        self.password = "ZheTao99!"
         self.db = "telebot"
         self.port = 3306
     
@@ -72,27 +72,50 @@ class DBHelper:
         var = (phone, username)
         self.execute(sql, var)
 
-<<<<<<< Updated upstream
-=======
+
+    def add_email(self, username, email):
+        sql = "UPDATE users SET email = %s WHERE username = %s"
+        var = (email, username)
+        self.execute(sql, var)
+
     def get_profile(self,username):
-        sql = "SELECT * from users WHERE username = %s"
+        sql = "SELECT fullname, contact_no, email FROM users WHERE username = %s"
         var = (username)
-        result = self.fetchall(sql,var)
+        result = self.fetch(sql, var)
+        return result 
+
+    def update_name_profile(self, fullname):
+        sql = "UPDATE users SET fullname = %s WHERE username = %s"
+        var = (fullname)
+        self.execute(sql, var)
+        
+    def update_number_profile(self, contact_no):
+        sql = "UPDATE users SET contact_no = %s WHERE username = %s"
+        var = (contact_no)
+        self.execute(sql, var)
+
+    def update_email_profile(self, email):
+        sql = "UPDATE users SET email = %s WHERE username = %s"
+        var = (email)
+        self.execute(sql, var)
+
+    def get_links(self, username):
+        sql = "SELECT link, link_description FROM user_links WHERE username = %s"
+        var = (username)
+        result = self.fetch(sql, var)
         return result
 
-    def displayprofile(self,username):
-        sql = "SELECT fullname, contact_no, email FROM users WHERE username = %s"
-        var = (username)
-        result =self.fetch(sql, var)
-        return result 
-        
-    def displayprofile(self,username):
-        sql = "SELECT fullname, contact_no, email FROM users WHERE username = %s"
-        var = (username)
-        result =self.fetch(sql, var)
-        return result 
+    def update_link_url(self, username, link):
+        sql = "UPDATE user_links SET link= %s WHERE (username, link_description) = (%s,%s)"
+        var = (username,link)
+        self.execute(sql, var)
+    
+    def update_link_description(self, username, link_description):
+        sql = "UPDATE user_links SET link_description = %s WHERE (username, link_url) = (%s,%s)"
+        var = (username, link_description)
+        self.execute(sql, var)
 
->>>>>>> Stashed changes
+    
 
 
 def parse_sql(filename):
@@ -126,3 +149,4 @@ def parse_sql(filename):
 
 db = DBHelper()
 
+print(db.get_links("zacgxx"))

@@ -80,7 +80,7 @@ def particulars(update: Update, context: CallbackContext) -> int:
     ]
     
     username = query.message.chat.username
-    userinfo = db.displayprofile(username)[0]
+    userinfo = db.get_profile(username)[0]
 
     logger.info(userinfo)
    
