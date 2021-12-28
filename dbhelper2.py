@@ -84,19 +84,19 @@ class DBHelper:
         result = self.fetch(sql, var)
         return result 
 
-    def update_name_profile(self, fullname):
+    def update_name_profile(self, username, fullname):
         sql = "UPDATE users SET fullname = %s WHERE username = %s"
-        var = (fullname)
+        var = (fullname, username)
         self.execute(sql, var)
         
-    def update_number_profile(self, contact_no):
+    def update_number_profile(self, username, contact_no):
         sql = "UPDATE users SET contact_no = %s WHERE username = %s"
-        var = (contact_no)
+        var = (contact_no, username)
         self.execute(sql, var)
 
-    def update_email_profile(self, email):
+    def update_email_profile(self, username, email):
         sql = "UPDATE users SET email = %s WHERE username = %s"
-        var = (email)
+        var = (email, username)
         self.execute(sql, var)
 
     def get_links(self, username):
@@ -104,16 +104,33 @@ class DBHelper:
         var = (username)
         result = self.fetch(sql, var)
         return result
-
-    def update_link_url(self, username, link):
-        sql = "UPDATE user_links SET link= %s WHERE (username, link_description) = (%s,%s)"
-        var = (username,link)
-        self.execute(sql, var)
     
     def update_link_description(self, username, link_description):
         sql = "UPDATE user_links SET link_description = %s WHERE (username, link_url) = (%s,%s)"
         var = (username, link_description)
         self.execute(sql, var)
+    
+    def add_link(self, username, link_description, link_url):
+        sql = "INSERT INTO user_links(username, link_description, link) VALUES (%s, %s, %s)"
+        var = (username, link_description, link_url)
+        self.execute(sql, var)
+    
+    def edit_link(self, username, link_description, link_url):
+        sql = "UPDATE user_links SET link_description = %s, link_url = %s WHERE (username, link_description) = (%s,%s)"
+        var = (link_description, link_url, username, link_description)
+        self.execute(sql, var)
+    
+    def get_link_url(self, username, link_description):
+        sql = "SELECT link FROM user_links WHERE (username, link_description) = (%s,%s)"
+        var = (username, link_description)
+        self.execute(sql, var)
+    
+    def get_qna(self, username):
+        sql = "SELECT question, answer FROM user_answers WHERE username = %s"
+        var = (username)
+        result = self.fetchall(sql, var)
+        return result
+
 
     
 
