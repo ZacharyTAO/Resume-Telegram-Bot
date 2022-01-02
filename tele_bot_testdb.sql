@@ -21,7 +21,7 @@ CREATE TABLE user_links(
     username varchar(100) not null,
     link varchar(100) not null,
     link_description varchar(25) not null,
-    constraint PK_user_links primary key (username, link_description),
+    constraint PK_user_links primary key (username, link_description), 
     foreign key(username) references users(username)
 )
 

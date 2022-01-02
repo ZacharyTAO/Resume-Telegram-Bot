@@ -105,19 +105,15 @@ class DBHelper:
         result = self.fetch(sql, var)
         return result
     
-    def update_link_description(self, username, link_description):
-        sql = "UPDATE user_links SET link_description = %s WHERE (username, link_url) = (%s,%s)"
-        var = (username, link_description)
-        self.execute(sql, var)
-    
+
     def add_link(self, username, link_description, link_url):
         sql = "INSERT INTO user_links(username, link_description, link) VALUES (%s, %s, %s)"
         var = (username, link_description, link_url)
         self.execute(sql, var)
     
-    def edit_link(self, username, link_description, link_url):
-        sql = "UPDATE user_links SET link_description = %s, link_url = %s WHERE (username, link_description) = (%s,%s)"
-        var = (link_description, link_url, username, link_description)
+    def edit_link(self, username, link_description_old, link_description_new, link_url):
+        sql = "UPDATE user_links SET link_description = %s, link = %s WHERE (username, link_description) = (%s,%s)"
+        var = (link_description_new, link_url, username, link_description_old)
         self.execute(sql, var)
     
     def get_link_url(self, username, link_description):
