@@ -16,6 +16,7 @@ from telegram.ext import (
     CallbackContext,
     MessageHandler,
     Filters,
+    commandhandler,
 )
 
 
@@ -40,9 +41,29 @@ db = DBHelper()
 
 ### START FUNCTIONS ###
 def start(update: Update, context: CallbackContext) -> int:
+
+    #send instruction 
+    #profile function 
+    #view function 
+
     """To start the bot"""
 
     update.message.reply_text("Hello! This bot will help you engage potential recruiters.")
+    update.message.reply_text("For recruiters, click /view" + "\n For Interviewees, click /profile")
+
+# def view(update: Update, context: CallbackContext):
+    #QNA, LINKS 
+
+        
+
+
+def profile(update: Update, context: CallbackContext) -> int:
+
+    """To start the bot"""
+
+    update.message.reply_text("Hello! This bot will help you engage potential recruiters.")
+    #direct to recruiters  and interviewees 
+
     username = update.message.chat.username
 
     # check if the user's username can currently be found inside the database
@@ -136,7 +157,14 @@ def particulars(update: Update, context: CallbackContext) -> int:
     fullname = user_particulars['fullname']
     contact_no = user_particulars['contact_no']
     email = user_particulars['email']
-    msg = 'Name: <b>'+fullname+'</b>\nPhone: <b>'+contact_no+'</b>\nEmail: <b>'+email+'</b>'
+    msg = 'Name: <b>' +fullname + '</b>'
+
+    if contact_no != None:
+        msg += '\nPhone: <b>'+contact_no+'</b>'
+
+    if email != None:
+        msg += '\nEmail: <b>'+email+'</b>'
+    # msg = 'Name: <b>'+fullname+'</b>\nPhone: <b>'+contact_no+'</b>\nEmail: <b>'+email+'</b>'
     keyboard = [
         [
             InlineKeyboardButton("Name", callback_data=str(NAME)),
@@ -213,7 +241,12 @@ def email(update: Update, context: CallbackContext) -> int:
     username = query.message.chat.username
     user_particulars = db.get_profile(username)[0]
     email = user_particulars['email']
-    msg = "You currently have your email stored as <b>" + email + "</b>\n" + \
+    
+    if email == None:
+        msg = "You have not stored your email. Type your email in and press enter"
+      
+    else:
+        msg = "You currently have your email stored as <b>" + email + "</b>\n" + \
     "If you would like to change it, type your name in and press enter"
     keyboard = [
         [
@@ -221,15 +254,45 @@ def email(update: Update, context: CallbackContext) -> int:
         ]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    query.edit_message_text(
+    query.edit_message_text( #callback query handler when we using a button
         text=msg, reply_markup=reply_markup, parse_mode='html'
     )
     return EDIT_EMAIL
 
 def edit_email(update: Update, context: CallbackContext) -> int:
+
     email = update.message.text
     username = update.message.chat.username
     db.update_email_profile(username, email)
+    
+    msg = "You have updated your email"
+
+    user_particulars = db.get_profile(username)[0]
+    fullname = user_particulars['fullname']
+    contact_no = user_particulars['contact_no']
+    
+    msg = 'Name: <b>' +fullname + '</b>'
+
+    if contact_no != None:
+        msg += '\nPhone: <b>'+contact_no+'</b>'
+
+    if email != None:
+        msg += '\nEmail: <b>'+email+'</b>'
+    keyboard = [
+        [
+            InlineKeyboardButton("Name", callback_data=str(NAME)),
+            InlineKeyboardButton("Mobile Number", callback_data=str(MOBILENUMBER)),
+            InlineKeyboardButton("Email", callback_data=(EMAIL))
+        ],
+        [
+            InlineKeyboardButton("Back", callback_data=str(BACK)),
+            InlineKeyboardButton("End", callback_data=str(QUIT)),
+        ]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    
+    update.message.reply_text(text=msg, reply_markup=reply_markup, parse_mode= 'html')
+
     return SECOND
 
 ###
@@ -551,20 +614,22 @@ def main() -> None:
     updater = Updater(TOKEN)
     dispatcher = updater.dispatcher
 
-    conv_handler1 = ConversationHandler(
-        entry_points=[CommandHandler('start', start)],
+    start_point = CommandHandler('start', start)
+
+    create_profile_handler1 = ConversationHandler(
+        entry_points=[CommandHandler('profile', profile)], #profile function 
         states={
             CREATEPROFILE: [MessageHandler(Filters.text, createprofile)],
             ADDPHONE: [MessageHandler(Filters.text, addphone)],
         },
-        fallbacks=[CommandHandler('start', start)]
+        fallbacks=[CommandHandler('end', end)]
     )
 
-    conv_handler2 = ConversationHandler(
+    edit_profile_handler2 = ConversationHandler(
         entry_points=[CommandHandler('edit', main_menu)],
         states={
             FIRST: [
-                CallbackQueryHandler(particulars, pattern='^' + str(PARTICULARS) + '$'),
+                CallbackQueryHandler(particulars, pattern='^' + str(PARTICULARS) + '$'), #regular expression
                 CallbackQueryHandler(links, pattern='^' + str(LINKS) + '$'),
                 CallbackQueryHandler(qna, pattern='^' + str(QNA) + '$'),
                 CallbackQueryHandler(back_main_menu, pattern='^' + str(BACK) + '$'),
@@ -584,7 +649,7 @@ def main() -> None:
                 CallbackQueryHandler(links, pattern='^' + str(LINKS) + '$'),
                 CallbackQueryHandler(back_main_menu, pattern='^' + str(BACK) + '$'),
                 CallbackQueryHandler(end, pattern='^' + str(QUIT) + '$'),
-                CallbackQueryHandler(editlink, pattern='^' + "LINK_"),
+                CallbackQueryHandler(editlink, pattern='^' + "LINK_"), #any button with starts LINK_ will call this function editlink 
                 CallbackQueryHandler(newlink, pattern='^' + str(NEWLINK) + '$'),
             ],
             FOURTH: [
@@ -626,13 +691,20 @@ def main() -> None:
             ],
 
         },
-        fallbacks=[CommandHandler('edit', main_menu), CommandHandler('start', start)],
+        fallbacks=[CommandHandler('edit', main_menu)] #clean up to change the
     )
 
+    # viewprofilehandler = ConversationHandler(
+    #     entry_points=[CommandHandler('view', main_menu)], #add states to view 
+    # )
+
     # Add ConversationHandler to dispatcher that will be used for handling updates
-    dispatcher.add_handler(conv_handler1)
-    dispatcher.add_handler(conv_handler2)
+    dispatcher.add_handler(start_point)
+    dispatcher.add_handler(create_profile_handler1)
+    dispatcher.add_handler(edit_profile_handler2)
+    # dispatcher.add_handler(viewprofilehandler)
     dispatcher.add_error_handler(error)
+
 
     # Start the Bot
     updater.start_polling()
