@@ -49,7 +49,7 @@ def start(update: Update, context: CallbackContext) -> int:
     """To start the bot"""
 
     update.message.reply_text("Hello! This bot will help you engage potential recruiters.")
-    update.message.reply_text("For recruiters, click /view" + "\n For Interviewees, click /profile")
+    update.message.reply_text("For recruiters, click /view" + "\nFor Interviewees, click /profile")
 
 # def view(update: Update, context: CallbackContext):
     #QNA, LINKS 
@@ -59,9 +59,9 @@ def start(update: Update, context: CallbackContext) -> int:
 
 def profile(update: Update, context: CallbackContext) -> int:
 
-    """To start the bot"""
+    """Enter personal profile """
 
-    update.message.reply_text("Hello! This bot will help you engage potential recruiters.")
+    # update.message.reply_text("Hello! This bot will help you engage potential recruiters.")
     #direct to recruiters  and interviewees 
 
     username = update.message.chat.username
@@ -208,6 +208,40 @@ def edit_name(update: Update, context: CallbackContext) -> int:
     fullname = update.message.text
     username = update.message.chat.username
     db.update_name_profile(username, fullname)
+
+    msg = "You have updated your name. You new name is " + fullname
+    update.message.reply_text(text=msg, parse_mode= 'html')
+
+    
+    user_particulars = db.get_profile(username)[0]
+    fullname = user_particulars['fullname']
+    logger.info(fullname)
+
+    contact_no = user_particulars['contact_no']
+    email = user_particulars['email']
+    
+    msg = 'Name: <b>' + fullname + '</b>'
+
+    if contact_no != None:
+        msg += '\nPhone: <b>'+contact_no+'</b>'
+
+    if email != None:
+        msg += '\nEmail: <b>'+email+'</b>'
+
+    keyboard = [
+        [
+            InlineKeyboardButton("Name", callback_data=str(NAME)),
+            InlineKeyboardButton("Mobile Number", callback_data=str(MOBILENUMBER)),
+            InlineKeyboardButton("Email", callback_data=(EMAIL))
+        ],
+        [
+            InlineKeyboardButton("Back", callback_data=str(BACK)),
+            InlineKeyboardButton("End", callback_data=str(QUIT)),
+        ]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    
+    update.message.reply_text(text=msg, reply_markup=reply_markup, parse_mode= 'html')
     return SECOND
 
 def mobilenumber(update: Update, context: CallbackContext) -> int:
@@ -233,6 +267,38 @@ def edit_mobile(update: Update, context: CallbackContext) -> int:
     contact_no = update.message.text
     username = update.message.chat.username
     db.update_number_profile(username, contact_no)
+
+    msg = "You have updated your mobile number. You new mobile number is " + contact_no
+    update.message.reply_text(text=msg, parse_mode= 'html')
+
+
+    user_particulars = db.get_profile(username)[0]
+    fullname = user_particulars['fullname']
+    contact_no = user_particulars['contact_no']
+    email = user_particulars['email']
+    
+    msg = 'Name: <b>' +fullname + '</b>'
+
+    if contact_no != None:
+        msg += '\nPhone: <b>'+contact_no+'</b>'
+
+    if email != None:
+        msg += '\nEmail: <b>'+email+'</b>'
+    keyboard = [
+        [
+            InlineKeyboardButton("Name", callback_data=str(NAME)),
+            InlineKeyboardButton("Mobile Number", callback_data=str(MOBILENUMBER)),
+            InlineKeyboardButton("Email", callback_data=(EMAIL))
+        ],
+        [
+            InlineKeyboardButton("Back", callback_data=str(BACK)),
+            InlineKeyboardButton("End", callback_data=str(QUIT)),
+        ]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    
+    update.message.reply_text(text=msg, reply_markup=reply_markup, parse_mode= 'html')
+
     return SECOND
 
 def email(update: Update, context: CallbackContext) -> int:
@@ -265,7 +331,9 @@ def edit_email(update: Update, context: CallbackContext) -> int:
     username = update.message.chat.username
     db.update_email_profile(username, email)
     
-    msg = "You have updated your email"
+    msg = "You have updated your email. Your new email is " + email
+    update.message.reply_text(text=msg, parse_mode= 'html')
+
 
     user_particulars = db.get_profile(username)[0]
     fullname = user_particulars['fullname']
@@ -443,14 +511,12 @@ def edit_link_url(update: Update, context: CallbackContext):
     link_description_old = context.user_data['link_description_old']
     link_description_new = context.user_data['link_description_new']
 
-    logger.info(link_description_old)
-    logger.info(link_description_new)
     db.edit_link(username, link_description_old, link_description_new, link_url)
     
     old_msg1 = "Your link for <b>" + link_description_new + "</b> has been added."
     update.message.reply_text(text=old_msg1,  parse_mode='html')
 
-    old_msg2 = "Your new link is " + "and " + link_url
+    old_msg2 = "Your new link is " + link_url
     update.message.reply_text(text=old_msg2,  parse_mode='html')
 
     for i in context.user_data['message_id']:
