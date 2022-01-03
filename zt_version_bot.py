@@ -1,10 +1,13 @@
 from os import link
 from typing import Callable
+import telegram
+from telegram import message
+
 
 from telegram.message import Message
 from dbhelper2 import DBHelper 
 import logging
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove, Update, replymarkup, user
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove, Update, replymarkup, user, Bot
 from telegram.ext import (
     Updater,
     CommandHandler,
@@ -15,6 +18,7 @@ from telegram.ext import (
     Filters,
 )
 
+
 # Enable logging
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
@@ -22,6 +26,8 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 TOKEN = '5093335972:AAF5XKRoWd9AEVycikG7CzPljBo8RpKqBtE'
+bot = Bot(TOKEN)
+
 
 # Stages
 CREATEPROFILE, ADDPHONE, MESSAGE, FIRST, SECOND, THIRD, FOURTH, EDIT_NAME, EDIT_MOBILE, EDIT_EMAIL, ADD_LINK_DESC, ADD_LINK_URL, EDIT_LINK_DESC, EDIT_LINK_URL = range(14)
@@ -289,6 +295,7 @@ def add_link_desc(update: Update, context: CallbackContext):
     reply_markup = InlineKeyboardMarkup(keyboard)
     msg = "Next, please enter the URL for your given link description"
     update.message.reply_text(text=msg, reply_markup=reply_markup)
+    
     context.user_data["link_description"] = new_link_desc
     return ADD_LINK_URL
 
@@ -337,13 +344,11 @@ def editlink(update: Update, context: CallbackContext):
     
     context.user_data['link_description_old'] = link_description_old #saving into telegram bot memory 
     context.user_data['link_url'] = link_url
+    context.user_data['message_id'] = [query.message.message_id]
+
     return EDIT_LINK_DESC
 
-def edit_name(update: Update, context: CallbackContext) -> int:
-    fullname = update.message.text #user input
-    username = update.message.chat.username #get current username
-    db.update_name_profile(username, fullname)
-    return SECOND
+
 
 # This function retrieves the new link description
 def edit_link_desc(update: Update, context: CallbackContext):
@@ -361,10 +366,12 @@ def edit_link_desc(update: Update, context: CallbackContext):
         ]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    update.message.reply_text(text=msg, reply_markup=reply_markup)
+    reply_message = update.message.reply_text(text=msg, reply_markup=reply_markup)
+    context.user_data['message_id'].append(reply_message.message_id)
     return EDIT_LINK_URL
 
 def edit_link_url(update: Update, context: CallbackContext):
+
     logger.info('Testing edit_link_url')
     link_url = update.message.text
     if link_url == '':
@@ -377,10 +384,41 @@ def edit_link_url(update: Update, context: CallbackContext):
     logger.info(link_description_new)
     db.edit_link(username, link_description_old, link_description_new, link_url)
     
-    msg = "Your link for <b>" + link_description_new + "</b> has been added."
-    update.message.reply_text(text=msg,  parse_mode='html')
-    msg = "Your new link is " + link_description_new + "and" + link_url
+    old_msg1 = "Your link for <b>" + link_description_new + "</b> has been added."
+    update.message.reply_text(text=old_msg1,  parse_mode='html')
 
+    old_msg2 = "Your new link is " + "and " + link_url
+    update.message.reply_text(text=old_msg2,  parse_mode='html')
+
+    for i in context.user_data['message_id']:
+        
+        bot.delete_message(chat_id = update.message.chat.id, message_id = i)
+
+    ## bring back keybaord 
+   
+    user_links = db.get_links(username)
+    msg = 'Add new links or edit your existing links here (maximum 4):\n\n'
+
+    for link in user_links:
+        msg += "<b>"+link["link_description"]+"</b>: "
+        msg += link["link"] + "\n\n"
+
+    # InlineKeyboardButtons will be created for each existing link with the tag "Edit [Link_Description]"
+    # There will be an 'Add a New Link' button to create new links
+    # [{link_description: Github, link:},{})
+    keyboard = [[]]
+    num_links = len(user_links)
+    for i in range(num_links):
+        keyboard[0].append(InlineKeyboardButton("Edit " + user_links[i]["link_description"], callback_data="LINK_"+user_links[i]["link_description"])) #user_links[i] refers to one dictonary #user_links[i][link_description] gets the name of the description
+    keyboard.append([InlineKeyboardButton("Add a New Link", callback_data=str(NEWLINK))])
+    keyboard.append(
+        [
+            InlineKeyboardButton("Back", callback_data=str(BACK)),
+            InlineKeyboardButton("End", callback_data=str(QUIT)),
+        ]
+    )
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    update.message.reply_text(text=msg,  parse_mode='html', reply_markup= reply_markup)
     return THIRD
 
 ###
