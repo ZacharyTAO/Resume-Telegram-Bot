@@ -105,7 +105,6 @@ class DBHelper:
         result = self.fetch(sql, var)
         return result
     
-
     def add_link(self, username, link_description, link_url):
         sql = "INSERT INTO user_links(username, link_description, link) VALUES (%s, %s, %s)"
         var = (username, link_description, link_url)
@@ -121,11 +120,16 @@ class DBHelper:
         var = (username, link_description)
         self.execute(sql, var)
     
-    def get_qna(self, username):
+    def get_question(self, username):
         sql = "SELECT question, answer FROM user_answers WHERE username = %s"
         var = (username)
         result = self.fetchall(sql, var)
         return result
+
+    def edit_answer(self, username, qna_question, qna_answer):
+        sql = "UPDATE user_answers SET answer = %s WHERE (username, question) = (%s,%s)"
+        var = (qna_answer, username, qna_question)
+        self.execute(sql, var)
 
 
     
