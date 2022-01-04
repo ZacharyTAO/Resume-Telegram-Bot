@@ -77,6 +77,14 @@ def profile(update: Update, context: CallbackContext):
     else:
         update.message.reply_text("Welcome back " + fullname + "!\n" +
         "Type /edit to edit your resume\n\n")
+
+def createprofile(update: Update, context: CallbackContext) -> int:
+    fullname = update.message.text
+    username = update.message.chat.username
+    db.create_fullname(username, fullname)
+    db.add_original_questions(username)
+    update.message.reply_text("What is your phone number?")
+    return ADDPHONE
         
 def addphone(update: Update, context: CallbackContext) -> int:
     phone = update.message.text
