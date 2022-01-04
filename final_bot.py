@@ -1,13 +1,8 @@
-from os import link
-from typing import Callable
-import telegram
-from telegram import message
-
-
-from telegram.message import Message
-from dbhelper2 import DBHelper 
+import os
+from dotenv import load_dotenv
+from dbhelper import DBHelper 
 import logging
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove, Update, replymarkup, user, Bot
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove, Update, Bot
 from telegram.ext import (
     Updater,
     CommandHandler,
@@ -16,9 +11,8 @@ from telegram.ext import (
     CallbackContext,
     MessageHandler,
     Filters,
-    commandhandler,
 )
-
+from view_functions import *
 
 # Enable logging
 logging.basicConfig(
@@ -26,7 +20,9 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
-TOKEN = '5093335972:AAF5XKRoWd9AEVycikG7CzPljBo8RpKqBtE'
+
+load_dotenv("./.env")
+TOKEN = os.getenv("token")
 bot = Bot(TOKEN)
 
 
@@ -40,7 +36,7 @@ PARTICULARS, LINKS, QNA, FOUR , BACK, QUIT, NAME, MOBILENUMBER, EMAIL, NEWLINK =
 db = DBHelper()
 
 ### START FUNCTIONS ###
-def start(update: Update, context: CallbackContext) -> int:
+def start(update: Update, context: CallbackContext):
 
     #send instruction 
     #profile function 
@@ -51,13 +47,7 @@ def start(update: Update, context: CallbackContext) -> int:
     update.message.reply_text("Hello! This bot will help you engage potential recruiters.")
     update.message.reply_text("For recruiters, click /view" + "\nFor applicants, click /profile")
 
-# def view(update: Update, context: CallbackContext):
-    #QNA, LINKS 
-
-        
-
-
-def profile(update: Update, context: CallbackContext) -> int:
+def profile(update: Update, context: CallbackContext):
 
     """Enter details """
 
@@ -80,14 +70,14 @@ def profile(update: Update, context: CallbackContext) -> int:
         update.message.reply_text("Welcome back " + fullname + "!\n" +
         "Type /edit to edit your resume\n\n")
         
-def createprofile(update: Update, context: CallbackContext) -> int:
+def createprofile(update: Update, context: CallbackContext):
     fullname = update.message.text
     update.message.reply_text("Great " + fullname + ", we've added to our database.")
     db.create_fullname(update.message.chat.username, fullname)
     update.message.reply_text("Next, add your phone number")
     return ADDPHONE
 
-def addphone(update: Update, context: CallbackContext) -> int:
+def addphone(update: Update, context: CallbackContext):
     phone = update.message.text
     db.add_phone(update.message.chat.username, phone)
     update.message.reply_text("We're all done setting up your profile.\n" + "Type /edit and press enter to view and edit your profile")
@@ -95,7 +85,7 @@ def addphone(update: Update, context: CallbackContext) -> int:
 ###
 
 ### FOR MAIN MENU FUNCTIONS ###
-def main_menu(update: Update, context: CallbackContext) -> int:
+def main_menu(update: Update, context: CallbackContext):
     """Send message on `/start`."""
     # Get user that sent /start and log his name
     user = update.message.from_user
@@ -117,7 +107,7 @@ def main_menu(update: Update, context: CallbackContext) -> int:
     return FIRST
 
 # because main menu function is not defined in first state, we use this instead to refer back to main menu
-def back_main_menu(update: Update, context: CallbackContext) -> int:
+def back_main_menu(update: Update, context: CallbackContext):
     """Prompt same text & keyboard as `start` does but not as new message"""
     # Get CallbackQuery from Update
     query = update.callback_query
@@ -140,7 +130,7 @@ def back_main_menu(update: Update, context: CallbackContext) -> int:
 
 ### FOR END FUNCTION ###
 # Returns `ConversationHandler.END`, which tells the ConversationHandler that the conversation is over 
-def end(update: Update, context: CallbackContext) -> int:
+def end(update: Update, context: CallbackContext):
     query = update.callback_query
     query.answer()
     query.edit_message_text(text="See you next time!")
@@ -149,7 +139,7 @@ def end(update: Update, context: CallbackContext) -> int:
 
 ###
 # Displays the user's prticulars and the necessary edit buttons
-def particulars(update: Update, context: CallbackContext) -> int:
+def particulars(update: Update, context: CallbackContext):
     query = update.callback_query
     query.answer()
     username = query.message.chat.username
@@ -184,7 +174,7 @@ def particulars(update: Update, context: CallbackContext) -> int:
     return SECOND
 
 # Displays the user's fullname and prompts them to edit if they wish
-def name(update: Update, context: CallbackContext) -> int:
+def name(update: Update, context: CallbackContext):
     query = update.callback_query
     query.answer()
     username = query.message.chat.username
@@ -204,7 +194,7 @@ def name(update: Update, context: CallbackContext) -> int:
     return EDIT_NAME
 
 # 
-def edit_name(update: Update, context: CallbackContext) -> int:
+def edit_name(update: Update, context: CallbackContext):
     fullname = update.message.text
     username = update.message.chat.username
     db.update_name_profile(username, fullname)
@@ -244,7 +234,7 @@ def edit_name(update: Update, context: CallbackContext) -> int:
     update.message.reply_text(text=msg, reply_markup=reply_markup, parse_mode= 'html')
     return SECOND
 
-def mobilenumber(update: Update, context: CallbackContext) -> int:
+def mobilenumber(update: Update, context: CallbackContext):
     query = update.callback_query
     query.answer()
     username = query.message.chat.username
@@ -263,7 +253,7 @@ def mobilenumber(update: Update, context: CallbackContext) -> int:
     )
     return EDIT_MOBILE
 
-def edit_mobile(update: Update, context: CallbackContext) -> int:
+def edit_mobile(update: Update, context: CallbackContext):
     contact_no = update.message.text
     username = update.message.chat.username
     db.update_number_profile(username, contact_no)
@@ -301,7 +291,7 @@ def edit_mobile(update: Update, context: CallbackContext) -> int:
 
     return SECOND
 
-def email(update: Update, context: CallbackContext) -> int:
+def email(update: Update, context: CallbackContext):
     query = update.callback_query
     query.answer()
     username = query.message.chat.username
@@ -325,7 +315,7 @@ def email(update: Update, context: CallbackContext) -> int:
     )
     return EDIT_EMAIL
 
-def edit_email(update: Update, context: CallbackContext) -> int:
+def edit_email(update: Update, context: CallbackContext):
 
     email = update.message.text
     username = update.message.chat.username
@@ -366,7 +356,7 @@ def edit_email(update: Update, context: CallbackContext) -> int:
 ###
 
 ### FOR LINK FUNCTIONS ###
-def links(update: Update, context: CallbackContext) -> int:
+def links(update: Update, context: CallbackContext):
     query = update.callback_query
     query.answer()
     username = query.message.chat.username
@@ -398,7 +388,7 @@ def links(update: Update, context: CallbackContext) -> int:
     return THIRD
 
 # This function creates a new link and enters into the add link description state
-def newlink(update: Update, context: CallbackContext) -> int:
+def newlink(update: Update, context: CallbackContext):
     query = update.callback_query
     query.answer()
     msg = "To create a new link, first send in a short description of the link.\n" + \
@@ -478,7 +468,6 @@ def editlink(update: Update, context: CallbackContext):
     context.user_data['message_id'] = [query.message.message_id]
 
     return EDIT_LINK_DESC
-
 
 
 # This function retrieves the new link description
@@ -617,9 +606,13 @@ def error(update: Update, context: CallbackContext):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
+def exit_convo(update: Update, context: CallbackContext):
+    update.message.reply_text("Command exited.\nFor recruiters, click /view to begin.\nFor applicants, click /profile to begin.")
+    return ConversationHandler.END
+
 
 ### FOR MAIN FUNCTION TO RUN THE BOT###
-def main() -> None:
+def main():
     updater = Updater(TOKEN)
     dispatcher = updater.dispatcher
 
@@ -704,15 +697,29 @@ def main() -> None:
         fallbacks=[CommandHandler('edit', main_menu)] #clean up to change the
     )
 
-    # viewprofilehandler = ConversationHandler(
-    #     entry_points=[CommandHandler('view', main_menu)], #add states to view 
-    # )
+    viewprofilehandler = ConversationHandler(
+        entry_points=[CommandHandler('view', view)],
+        states = {
+            "USERNAME": [
+                CommandHandler('exit', exit_convo),
+                MessageHandler(Filters.text, view_user_menu)
+            ],
+            "DISPLAY": [
+                CallbackQueryHandler(end, pattern ="end"),
+                CallbackQueryHandler(view_user_particulars, pattern ="view_particulars"),
+                CallbackQueryHandler(view_user_links, pattern ="view_links"),
+                CallbackQueryHandler(view_user_qna, pattern ="view_qna")
+            ]
+
+        },
+        fallbacks = [CommandHandler('exit', exit_convo)]
+    )
 
     # Add ConversationHandler to dispatcher that will be used for handling updates
     dispatcher.add_handler(start_point)
     dispatcher.add_handler(create_profile_handler1)
     dispatcher.add_handler(edit_profile_handler2)
-    # dispatcher.add_handler(viewprofilehandler)
+    dispatcher.add_handler(viewprofilehandler)
     dispatcher.add_error_handler(error)
 
 

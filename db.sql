@@ -1,3 +1,8 @@
+DROP SCHEMA IF EXISTS telebot;
+CREATE SCHEMA telebot;
+USE telebot;
+
+
 DROP TABLE IF EXISTS users;
 CREATE TABLE users (
     username varchar(100) not null,

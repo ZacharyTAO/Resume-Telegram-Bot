@@ -10,7 +10,7 @@ class DBHelper:
         # self.db = "telechatbot"
         self.host = "localhost"
         self.user = "root"
-        self.password = "ZheTao99!"
+        self.password = ""
         self.db = "telebot"
         self.port = 3306
     
