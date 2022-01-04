@@ -31,9 +31,9 @@ bot = Bot(TOKEN)
 
 
 # Stages
-CREATEPROFILE, ADDPHONE, MESSAGE, FIRST, SECOND, THIRD, FOURTH, EDIT_NAME, EDIT_MOBILE, EDIT_EMAIL, ADD_LINK_DESC, ADD_LINK_URL, EDIT_LINK_DESC, EDIT_LINK_URL = range(14)
+CREATEPROFILE, ADDPHONE, MESSAGE, FIRST, SECOND, THIRD, FOURTH, EDIT_NAME, EDIT_MOBILE, EDIT_EMAIL, ADD_LINK_DESC, ADD_LINK_URL, EDIT_LINK_DESC, EDIT_LINK_URL, EDIT_ANSWER = range(15)
 # Callback data
-PARTICULARS, LINKS, QNA, FOUR , BACK, QUIT, NAME, MOBILENUMBER, EMAIL, Q1, Q2, Q3, Q4, NEWLINK = range(14)
+PARTICULARS, LINKS, QNA, FOUR , BACK, QUIT, NAME, MOBILENUMBER, EMAIL, NEWLINK = range(10)
 
 ### calling dbhelper stepbro for help ###
 
@@ -550,124 +550,67 @@ def edit_link_url(update: Update, context: CallbackContext):
     update.message.reply_text(text=msg,  parse_mode='html', reply_markup= reply_markup)
     return THIRD
 
-###
-
 ### FOR QNA FUNCTIONS ###
 def qna(update: Update, context: CallbackContext) -> int:
-    """Show new choice of buttons"""
     query = update.callback_query
     query.answer()
-    keyboard = [
-        [
-            InlineKeyboardButton("Q1", callback_data=str(Q1)),
-            InlineKeyboardButton("Q2", callback_data=str(Q2)),
-        ],
-        [
-            InlineKeyboardButton("Q3", callback_data=str(Q3)),
-            InlineKeyboardButton("Q4", callback_data=str(Q4)),
-        ],
+    username = query.message.chat.username
+    user_questions = db.get_question(username)
+    msg = "Answer any of the following questions" + "\n\n"
+    for q in user_questions:
+        msg += "<b>"+q["question"]+"</b>: "
+        msg += q["answer"] + "\n\n"
+    context.user_data["all_questions"] = [q["question"] for q in user_questions] # to store the order of the questions 
+    context.user_data["all_answers"] = [q["answer"] for q in user_questions] # to store the order of the answers
+    keyboard = [[]]
+    num_answers = len(user_questions)
+    for a in range(num_answers):
+        keyboard[0].append(InlineKeyboardButton("Edit Q" + str(a+1), callback_data="qna_"+str(a)))
+    keyboard.append(
         [
             InlineKeyboardButton("Back", callback_data=str(BACK)),
             InlineKeyboardButton("End", callback_data=str(QUIT)),
         ]
-    ]
+    )
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(
-        text=
-        "Question & Answer Menu"+
-
-        "1. Describe yourself\n\n"+ 
-
-        "Question 1 answer\n\n"+
-
-        "2. Why are you applying for this job?\n\n"+ 
-
-        "Question 2 answer\n\n"+
-
-        "3. What are some of your strengths and weaknesses?\n\n"+
-
-        "Question 3 answer\n\n"+
-
-        "4. What are some challenges you have experienced and how did you overcome it?\n\n"+ 
-
-        "Question 4 answer\n\n"
-
-        , reply_markup=reply_markup)
- 
-    reply_markup = InlineKeyboardMarkup(keyboard)
+        text=msg, reply_markup=reply_markup, parse_mode='html',disable_web_page_preview=True
+    )
     # goes to fourth state
     return FOURTH
 
-def question1(update: Update, context: CallbackContext) -> int:
+# this function edits an existing answer
+def edit_answer(update: Update, context: CallbackContext):
+    data = update.callback_query.data
     query = update.callback_query
     query.answer()
+    qna_number = int(data[4:])
+    qna_answer = context.user_data["all_answers"][qna_number]
+    context.user_data["current_answer"] = qna_answer
+    context.user_data["current_question"] = context.user_data["all_questions"][qna_number]
+    logger.info(context.user_data["current_question"])
+    msg = "Your current answer is <b>" + qna_answer + "</b>\n" + \
+        "If you would like to change your answer, you can key in a new one and press enter"
+    logger.info(msg)
     keyboard = [
         [
             InlineKeyboardButton("Back", callback_data=str(QNA)),
         ]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    query.edit_message_text(
-        text=
-        "1. Describe yourself\n\n" + 
-        "Type in an answer for question 1. \n\n" + 
-        "Press enter to confirm answer. \n\n" + 
-        "Click on 'back' to return to question menu.\n\n", reply_markup=reply_markup
-    )
-    return FOURTH
+    query.edit_message_text(text=msg, reply_markup=reply_markup, parse_mode='html')
+    return EDIT_ANSWER
 
-def question2(update: Update, context: CallbackContext) -> int:
-    query = update.callback_query
-    query.answer()
-    keyboard = [
-        [
-            InlineKeyboardButton("Back", callback_data=str(QNA)),
-        ]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    query.edit_message_text(
-        text=
-        "2. Why are you applying for this job?\n\n"+ 
-        "Type in an answer for question 1. \n\n" + 
-        "Press enter to confirm answer. \n\n" + 
-        "Click on 'back' to return to question menu.\n\n", reply_markup=reply_markup
-    )
-    return FOURTH
-
-def question3(update: Update, context: CallbackContext) -> int:
-    query = update.callback_query
-    query.answer()
-    keyboard = [
-        [
-            InlineKeyboardButton("Back", callback_data=str(QNA)),
-        ]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    query.edit_message_text(
-        text=
-        "3. What are some of your strengths and weaknesses?\n\n"+
-        "Type in an answer for question 1. \n\n" + 
-        "Press enter to confirm answer. \n\n" + 
-        "Click on 'back' to return to question menu.\n\n", reply_markup=reply_markup
-    )
-    return FOURTH
-
-def question4(update: Update, context: CallbackContext) -> int:
-    query = update.callback_query
-    query.answer()
-    keyboard = [
-        [
-            InlineKeyboardButton("Back", callback_data=str(QNA)),
-        ]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    query.edit_message_text(
-        text=
-        "4. What are some challenges you have experienced and how did you overcome it?\n\n"+ 
-        "Type in an answer for question 1. \n\n" + 
-        "Press enter to confirm answer. \n\n" + 
-        "Click on 'back' to return to question menu.\n\n", reply_markup=reply_markup
-    )
+# this function retrieves the new answer
+def user_answer(update: Update, context: CallbackContext):
+    qna_answer = update.message.text
+    if qna_answer == '':
+        qna_answer == context.user_data['current_answer']
+    username = update.message.chat.username
+    qna_question = context.user_data['current_question']
+    db.edit_answer(username,qna_question,qna_answer)
+    msg = "Your answer for <b>" + qna_question + "</b> has been added"
+    update.message.reply_text(text=msg, parse_mode='html')
     return FOURTH
 ###
 def error(update: Update, context: CallbackContext):
@@ -722,10 +665,7 @@ def main() -> None:
                 CallbackQueryHandler(qna, pattern='^' + str(QNA) + '$'),
                 CallbackQueryHandler(back_main_menu, pattern='^' + str(BACK) + '$'),
                 CallbackQueryHandler(end, pattern='^' + str(QUIT) + '$'), 
-                CallbackQueryHandler(question1, pattern='^' + str(Q1) + '$'),
-                CallbackQueryHandler(question2, pattern='^' + str(Q2) + '$'),
-                CallbackQueryHandler(question3, pattern='^' + str(Q3) + '$'), 
-                CallbackQueryHandler(question4, pattern='^' + str(Q4) + '$'), 
+                CallbackQueryHandler(edit_answer, pattern='^' + "qna_"),
             ],
             EDIT_NAME:[
                 MessageHandler(Filters.text & ~Filters.command, edit_name),
@@ -754,6 +694,10 @@ def main() -> None:
             EDIT_LINK_URL:[
                 MessageHandler(Filters.text & ~Filters.command, edit_link_url),
                 CallbackQueryHandler(links, pattern='^' + str(LINKS) + '$'),
+            ],
+            EDIT_ANSWER:[
+                MessageHandler(Filters.text & ~Filters.command, user_answer),
+                CallbackQueryHandler(qna, pattern='^' + str(QNA) + '$'),
             ],
 
         },
