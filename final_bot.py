@@ -27,7 +27,7 @@ bot = Bot(TOKEN)
 
 
 # Stages
-CREATEPROFILE, ADDPHONE, MESSAGE, FIRST, SECOND, THIRD, FOURTH, EDIT_NAME, EDIT_MOBILE, EDIT_EMAIL, ADD_LINK_DESC, ADD_LINK_URL, EDIT_LINK_DESC, EDIT_LINK_URL, EDIT_ANSWER = range(15)
+CREATEPROFILE, ADDPHONE, ADDEMAIL, MESSAGE, FIRST, SECOND, THIRD, FOURTH, EDIT_NAME, EDIT_MOBILE, EDIT_EMAIL, ADD_LINK_DESC, ADD_LINK_URL, EDIT_LINK_DESC, EDIT_LINK_URL, EDIT_ANSWER = range(16)
 # Callback data
 PARTICULARS, LINKS, QNA, FOUR , BACK, QUIT, NAME, MOBILENUMBER, EMAIL, NEWLINK = range(10)
 
@@ -70,16 +70,15 @@ def profile(update: Update, context: CallbackContext):
         update.message.reply_text("Welcome back " + fullname + "!\n" +
         "Type /edit to edit your resume\n\n")
         
-def createprofile(update: Update, context: CallbackContext):
-    fullname = update.message.text
-    update.message.reply_text("Great " + fullname + ", we've added to our database.")
-    db.create_fullname(update.message.chat.username, fullname)
-    update.message.reply_text("Next, add your phone number")
-    return ADDPHONE
-
-def addphone(update: Update, context: CallbackContext):
+def addphone(update: Update, context: CallbackContext) -> int:
     phone = update.message.text
     db.add_phone(update.message.chat.username, phone)
+    update.message.reply_text("Next, add your email")
+    return ADDEMAIL
+
+def addemail(update: Update, context: CallbackContext) -> int:
+    email = update.message.text
+    db.add_email(update.message.chat.username, email)
     update.message.reply_text("We're all done setting up your profile.\n" + "Type /edit and press enter to view and edit your profile")
     return ConversationHandler.END
 ###
@@ -623,6 +622,7 @@ def main():
         states={
             CREATEPROFILE: [MessageHandler(Filters.text, createprofile)],
             ADDPHONE: [MessageHandler(Filters.text, addphone)],
+            ADDEMAIL: [MessageHandler(Filters.text, addemail)],
         },
         fallbacks=[CommandHandler('end', end)]
     )
