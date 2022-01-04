@@ -4,14 +4,14 @@ import pymysql
 class DBHelper:
 
     def __init__(self):
-        # self.host = "telechatbot.czm6afi2ciew.ap-southeast-1.rds.amazonaws.com"
-        # self.user = "admin"
-        # self.password = "1234567
-        # self.db = "telechatbot"
-        self.host = "localhost"
-        self.user = "root"
-        self.password = ""
+        self.host = "database-telebot.c9aptwswszpo.us-east-1.rds.amazonaws.com"
+        self.user = "admin"
+        self.password = "root123456"
         self.db = "telebot"
+        # self.host = "localhost"
+        # self.user = "root"
+        # self.password = ""
+        # self.db = "telebot"
         self.port = 3306
     
     def __connect__(self):
