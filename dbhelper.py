@@ -4,8 +4,9 @@ import pymysql
 class DBHelper:
 
     def __init__(self):
-        self.host = "database-telebot.c9aptwswszpo.us-east-1.rds.amazonaws.com"
-        self.user = "admin"
+        #connect to RDS database
+        self.host = "database-telebot.c9aptwswszpo.us-east-1.rds.amazonaws.com" #RDS address 
+        self.user = "admin" 
         self.password = "root123456"
         self.db = "telebot"
         # self.host = "localhost"
@@ -60,11 +61,20 @@ class DBHelper:
             return result[0]["fullname"]
         except IndexError:
             return None
+
     
     def create_fullname(self, username, fullname):
         sql = "INSERT INTO users (username, fullname) VALUES (%s,%s)"
         var = (username, fullname)
         self.execute(sql, var)
+
+    def createquestions(self,username):
+        all_questions = ['Describe yourself','Why are you applying for this role?', 'What are your strengths and weaknesses?','What is one challenge you have experienced and how did you overcome it?']
+        for question in all_questions:
+            sql = "INSERT INTO user_answers (username,question,answer) VALUES (%s,%s,%s)"
+            var = (username,question,"No Answer Added")
+            self.execute(sql,var)
+
 
     
     def add_phone(self, username, phone):

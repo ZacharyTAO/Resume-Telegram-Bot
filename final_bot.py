@@ -47,6 +47,14 @@ def start(update: Update, context: CallbackContext):
     update.message.reply_text("Hello! This bot will help you engage potential recruiters.")
     update.message.reply_text("For recruiters, click /view" + "\nFor applicants, click /profile")
 
+def createprofile(update: Update, context: CallbackContext) -> int:
+    fullname = update.message.text
+    update.message.reply_text("Great " + fullname + ", we've added to our database.")
+    db.create_fullname(update.message.chat.username, fullname)
+    update.message.reply_text("Next, add your phone number")
+    db.createquestions(update.message.chat.username)
+    return ADDPHONE
+
 def profile(update: Update, context: CallbackContext):
 
     """Enter details """
@@ -438,6 +446,32 @@ def add_link_url(update: Update, context: CallbackContext):
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
+    ## bring back keybaord 
+   
+    user_links = db.get_links(username)
+    msg = 'Add new links or edit your existing links here (maximum 4):\n\n'
+
+    for link in user_links:
+        msg += "<b>"+link["link_description"]+"</b>: "
+        msg += link["link"] + "\n\n"
+
+    # InlineKeyboardButtons will be created for each existing link with the tag "Edit [Link_Description]"
+    # There will be an 'Add a New Link' button to create new links
+    # [{link_description: Github, link:},{})
+    keyboard = [[]]
+    num_links = len(user_links)
+    for i in range(num_links):
+        keyboard[0].append(InlineKeyboardButton("Edit " + user_links[i]["link_description"], callback_data="LINK_"+user_links[i]["link_description"])) #user_links[i] refers to one dictonary #user_links[i][link_description] gets the name of the description
+    keyboard.append([InlineKeyboardButton("Add a New Link", callback_data=str(NEWLINK))])
+    keyboard.append(
+        [
+            InlineKeyboardButton("Back", callback_data=str(BACK)),
+            InlineKeyboardButton("End", callback_data=str(QUIT)),
+        ]
+    )
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    update.message.reply_text(text=msg,  parse_mode='html', reply_markup= reply_markup)
+
     return THIRD
 
 # This function edits an existing link 
@@ -448,7 +482,7 @@ def editlink(update: Update, context: CallbackContext):
     query = update.callback_query
     query.answer()
     link_description_old = data[5:] #LINK_doggo pic - get doggo pic
-    # logger.info(link_description)
+
     username = query.message.chat.username
     link_url = db.get_link_url(username, link_description_old)
     msg = "Your current link description is <b>" + link_description_old + "</b>\n" + \
@@ -487,6 +521,7 @@ def edit_link_desc(update: Update, context: CallbackContext):
     reply_markup = InlineKeyboardMarkup(keyboard)
     reply_message = update.message.reply_text(text=msg, reply_markup=reply_markup)
     context.user_data['message_id'].append(reply_message.message_id)
+
     return EDIT_LINK_URL
 
 def edit_link_url(update: Update, context: CallbackContext):
@@ -546,7 +581,7 @@ def qna(update: Update, context: CallbackContext) -> int:
     user_questions = db.get_question(username)
     msg = "Answer any of the following questions" + "\n\n"
     for q in user_questions:
-        msg += "<b>"+q["question"]+"</b>: "
+        msg += "<b>"+q["question"]+"</b>: \n"
         msg += q["answer"] + "\n\n"
     context.user_data["all_questions"] = [q["question"] for q in user_questions] # to store the order of the questions 
     context.user_data["all_answers"] = [q["answer"] for q in user_questions] # to store the order of the answers
@@ -597,8 +632,29 @@ def user_answer(update: Update, context: CallbackContext):
     username = update.message.chat.username
     qna_question = context.user_data['current_question']
     db.edit_answer(username,qna_question,qna_answer)
+    user_questions = db.get_question(username)
     msg = "Your answer for <b>" + qna_question + "</b> has been added"
     update.message.reply_text(text=msg, parse_mode='html')
+
+    msg = "Answer any of the following questions" + "\n\n"
+    for q in user_questions:
+        msg += "<b>"+q["question"]+"</b>: \n"
+        msg += q["answer"] + "\n\n"
+    context.user_data["all_questions"] = [q["question"] for q in user_questions] # to store the order of the questions 
+    context.user_data["all_answers"] = [q["answer"] for q in user_questions] # to store the order of the answers
+    keyboard = [[]]
+    num_answers = len(user_questions)
+    for a in range(num_answers):
+        keyboard[0].append(InlineKeyboardButton("Edit Q" + str(a+1), callback_data="qna_"+str(a)))
+    keyboard.append(
+        [
+            InlineKeyboardButton("Back", callback_data=str(BACK)),
+            InlineKeyboardButton("End", callback_data=str(QUIT)),
+        ]
+    )
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    update.message.reply_text(text=msg,  parse_mode='html', reply_markup= reply_markup)
+
     return FOURTH
 ###
 def error(update: Update, context: CallbackContext):

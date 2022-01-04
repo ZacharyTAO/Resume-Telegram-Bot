@@ -77,7 +77,7 @@ def view_user_links(update: Update, context: CallbackContext):
     else:
         message = 'These are the user links:\n\n'
         for link in user_links:
-            message+= "<b>{}>/b>: {}\n\n".format(link["link_description"], link["link"])
+            message+= "<b>{}</b>: {}\n\n".format(link["link_description"], link["link"])
 
     keyboard = [
         [
