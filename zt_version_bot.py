@@ -49,7 +49,7 @@ def start(update: Update, context: CallbackContext) -> int:
     """To start the bot"""
 
     update.message.reply_text("Hello! This bot will help you engage potential recruiters.")
-    update.message.reply_text("For recruiters, click /view" + "\nFor Interviewees, click /profile")
+    update.message.reply_text("For recruiters, click /view" + "\nFor applicants, click /profile")
 
 # def view(update: Update, context: CallbackContext):
     #QNA, LINKS 
@@ -59,7 +59,7 @@ def start(update: Update, context: CallbackContext) -> int:
 
 def profile(update: Update, context: CallbackContext) -> int:
 
-    """Enter personal profile """
+    """Enter details """
 
     # update.message.reply_text("Hello! This bot will help you engage potential recruiters.")
     #direct to recruiters  and interviewees 
