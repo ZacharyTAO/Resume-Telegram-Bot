@@ -5,6 +5,11 @@ from telegram.ext import (
 )
 import logging
 import os
+import re 
+
+  
+regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$' 
+
 from dbhelper import DBHelper
 from dotenv import load_dotenv
 
@@ -116,7 +121,7 @@ def particulars(update: Update, context: CallbackContext):
     msg += '\n\nClick on the buttons to edit your particulars.'
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    if update.callback_query != None:
+    if update.callback_query != None: #trigger when button is pressed 
         query.edit_message_text(
             text=msg, reply_markup=reply_markup, parse_mode='html'
         )
@@ -181,8 +186,17 @@ def save_mobile(update: Update, context: CallbackContext):
     username = update.message.chat.username
     db.update_number_profile(username, contact_no)
 
-    msg = "You have updated your mobile number. You new mobile number is " + contact_no
+
+    if len(contact_no) != 8:
+        msg = "Please enter the number again"
+        update.message.reply_text(text=msg, parse_mode= 'html')
+        return "EDIT_MOBILE" #if you want display msg, copy the function itself not the state 
+
+    else:
+        msg = "You have updated your mobile number. You new mobile number is " + contact_no
+
     update.message.reply_text(text=msg, parse_mode= 'html')
+
     return particulars(update, context)
 
 def edit_email(update: Update, context: CallbackContext):
@@ -205,15 +219,32 @@ def edit_email(update: Update, context: CallbackContext):
     query.edit_message_text( #callback query handler when we using a button
         text=msg, reply_markup=reply_markup, parse_mode='html'
     )
+
     return "EDIT_EMAIL"
+
+def validate_email(email):
+
+    if (re.search(regex.email)):
+        return True 
+
+    else:
+       return False
 
 def save_email(update: Update, context: CallbackContext):
     email = update.message.text
     username = update.message.chat.username
-    db.update_email_profile(username, email)
+
+    check_email = validate_email(email)
+    logger.info(check_email)
+    if check_email == False:
+        msg = "You have entered an invalid email. Please re-enter a valid email"
+        update.message.reply_text(text=msg, parse_mode= 'html')
+        return "EDIT_EMAIL"
+    else:
     
-    msg = "You have updated your email. Your new email is " + email
-    update.message.reply_text(text=msg, parse_mode= 'html')
+        db.update_email_profile(username, email)
+        msg = "You have updated your email. Your new email is " + email
+        update.message.reply_text(text=msg, parse_mode= 'html')
 
     return particulars(update, context)
 
