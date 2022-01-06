@@ -427,7 +427,7 @@ def delete_link(update: Update, context: CallbackContext):
     username = query.message.chat.username
     link_description_old = data[5:]
     db.delete_link(username,link_description_old)
-    query.message.reply_text("Link description and url has been deleted, press back")
+    query.message.reply_text("Link description and url has been deleted")
     
     return links(update, context)
 
@@ -536,6 +536,6 @@ def delete_user_answer(update: Update, context: CallbackContext):
     qna_number = int(data[4:])
     qna_question = context.user_data["all_questions"][qna_number]
     db.delete_answer(username,qna_question)
-    query.message.reply_text("Answer has been deleted, press back")
+    query.message.reply_text("Answer has been deleted")
     
     return qna(update, context)
