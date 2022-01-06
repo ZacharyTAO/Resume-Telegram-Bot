@@ -273,6 +273,7 @@ def links(update: Update, context: CallbackContext):
     keyboard.append(
         [
             InlineKeyboardButton("Back", callback_data="BACK"),
+            InlineKeyboardButton("Delete", callback_data="DELETE),
             InlineKeyboardButton("End", callback_data="QUIT"),
         ]
     )
@@ -458,7 +459,7 @@ def qna(update: Update, context: CallbackContext):
     keyboard.append(
         [
             InlineKeyboardButton("Back", callback_data="BACK"),
-            InlineKeyboardButton("Delete", callback_data=("DELETE)),
+            InlineKeyboardButton("Delete", callback_data=("DELETE"),
             InlineKeyboardButton("End", callback_data="QUIT"),
         ]
     )
