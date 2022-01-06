@@ -128,7 +128,8 @@ class DBHelper:
     def get_link_url(self, username, link_description):
         sql = "SELECT link FROM user_links WHERE (username, link_description) = (%s,%s)"
         var = (username, link_description)
-        self.execute(sql, var)
+        result = self.fetch(sql, var)
+        return result
     
     def get_question(self, username):
         sql = "SELECT question, answer FROM user_answers WHERE username = %s"
