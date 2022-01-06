@@ -413,12 +413,6 @@ def delete_link_menu(update: Update, context: CallbackContext):
     num_links = len(user_links)
     for i in range(num_links):
         keyboard[0].append(InlineKeyboardButton("Delete " + user_links[i]["link_description"], callback_data="LINK_"+user_links[i]["link_description"])) 
-    keyboard.append(
-        [
-            InlineKeyboardButton("Back", callback_data="LINKS"),
-            InlineKeyboardButton("End", callback_data="QUIT"),
-        ]
-    )
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(
         text=msg, reply_markup=reply_markup, parse_mode='html',disable_web_page_preview=True
@@ -527,12 +521,6 @@ def delete_user_answer_menu(update: Update, context: CallbackContext):
     num_answers = len(user_questions)
     for a in range(num_answers):
         keyboard[0].append(InlineKeyboardButton("Q" + str(a+1) + " Answer", callback_data="qna_"+str(a)))
-    keyboard.append(
-        [
-            InlineKeyboardButton("Back", callback_data="QNA",
-            InlineKeyboardButton("End", callback_data="QUIT",
-        ]
-    )
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(
         text=msg, reply_markup=reply_markup, parse_mode='html',disable_web_page_preview=True
