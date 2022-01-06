@@ -126,6 +126,7 @@ def main():
             ],
             "DELETE_LINK":[
                 CallbackQueryHandler(delete_link, pattern='^LINK_'),
+            ],
             "QNA_MENU": [
                 CallbackQueryHandler(main_menu, pattern='BACK'),
                 CallbackQueryHandler(delete_user_answer_menu, pattern='DELETE'),
