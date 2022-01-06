@@ -188,7 +188,7 @@ def save_mobile(update: Update, context: CallbackContext):
 
 
     if len(contact_no) != 8:
-        msg = "Please enter the number again"
+        msg = "You have entered a wrong number. Please enter your 8-digit phone number"
         update.message.reply_text(text=msg, parse_mode= 'html')
         return "EDIT_MOBILE" #if you want display msg, copy the function itself not the state 
 
@@ -224,9 +224,8 @@ def edit_email(update: Update, context: CallbackContext):
 
 def validate_email(email):
 
-    if (re.search(regex.email)):
+    if (re.search(regex,email)):
         return True 
-
     else:
        return False
 
@@ -235,7 +234,7 @@ def save_email(update: Update, context: CallbackContext):
     username = update.message.chat.username
 
     check_email = validate_email(email)
-    logger.info(check_email)
+
     if check_email == False:
         msg = "You have entered an invalid email. Please re-enter a valid email"
         update.message.reply_text(text=msg, parse_mode= 'html')
