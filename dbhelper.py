@@ -131,6 +131,11 @@ class DBHelper:
         result = self.fetch(sql, var)
         return result
     
+    def delete_link(self, username, link_description_old):
+        sql = "DELETE FROM user_links WHERE (username, link_description) = (%s,%s)"
+        var = (username, link_description_old)
+        self.execute(sql, var)
+    
     def get_question(self, username):
         sql = "SELECT question, answer FROM user_answers WHERE username = %s"
         var = (username)
@@ -141,8 +146,11 @@ class DBHelper:
         sql = "UPDATE user_answers SET answer = %s WHERE (username, question) = (%s,%s)"
         var = (qna_answer, username, qna_question)
         self.execute(sql, var)
-
-
+       
+    def delete_answer(self, username, qna_question):
+        sql = "UPDATE user_answers SET answer = 'No Answer' WHERE (username, question) = (%s,%s)"
+        var = (username, qna_question)
+        self.execute(sql, var)
     
 
 
