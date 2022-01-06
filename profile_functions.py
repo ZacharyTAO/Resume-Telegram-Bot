@@ -434,7 +434,7 @@ def delete_link(update: Update, context: CallbackContext):
     link_description_old = data[5:]
     db.delete_link(username,link_description_old)
     query.message.reply_text("Link description and url has been deleted, press back")
-    return "THIRD"
+    return "LINKS_MENU"
 
 ########################### Edit Question Functions ###################################
 ### FOR QNA FUNCTIONS ###
@@ -548,4 +548,4 @@ def delete_user_answer(update: Update, context: CallbackContext):
     qna_question = context.user_data["all_questions"][qna_number]
     db.delete_answer(username,qna_question)
     query.message.reply_text("Answer has been deleted, press back")
-    return "FOURTH"
+    return "QNA_MENU"
