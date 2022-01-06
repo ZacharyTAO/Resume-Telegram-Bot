@@ -102,6 +102,7 @@ def main():
             ],
             "LINKS_MENU": [
                 CallbackQueryHandler(main_menu, pattern='BACK'),
+                CallbackQueryHandler(delete_link_menu, pattern='DELETE'),
                 CallbackQueryHandler(end, pattern='QUIT'),
                 CallbackQueryHandler(edit_link, pattern='^LINK_'), #any button with starts LINK_ will call this function editlink 
                 CallbackQueryHandler(new_link, pattern='NEWLINK'),
@@ -123,15 +124,21 @@ def main():
                 MessageHandler(Filters.text & ~Filters.command, edit_link_url),
                 CallbackQueryHandler(links, pattern='LINKS'),
             ],
+            "DELETE_LINK":[
+                CallbackQueryHandler(delete_link, pattern='^' + ''),
             "QNA_MENU": [
                 CallbackQueryHandler(main_menu, pattern='BACK'),
-                CallbackQueryHandler(end, pattern='QUIT'), 
+                CallbackQueryHandler(delete_user_answer_menu, pattern='DELETE'),
+                CallbackQueryHandler(end, pattern='QUIT'),
                 CallbackQueryHandler(edit_answer, pattern='^qna_'),
             ],
             "EDIT_ANSWER":[
                 MessageHandler(Filters.text & ~Filters.command, user_answer),
                 CallbackQueryHandler(qna, pattern='QNA')
             ],
+            "DELETE_ANSWER":[
+                CallbackQueryHandler(delete_user_answer, pattern="^qna_"),
+            ]
         },
         fallbacks=[CommandHandler('exit', exit_convo)]
     )
