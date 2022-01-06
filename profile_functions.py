@@ -273,7 +273,7 @@ def links(update: Update, context: CallbackContext):
     keyboard.append(
         [
             InlineKeyboardButton("Back", callback_data="BACK"),
-            InlineKeyboardButton("Delete", callback_data="DELETE),
+            InlineKeyboardButton("Delete", callback_data="DELETE"),
             InlineKeyboardButton("End", callback_data="QUIT"),
         ]
     )
@@ -415,8 +415,8 @@ def delete_link_menu(update: Update, context: CallbackContext):
         keyboard[0].append(InlineKeyboardButton("Delete " + user_links[i]["link_description"], callback_data="LINK_"+user_links[i]["link_description"])) 
     keyboard.append(
         [
-            InlineKeyboardButton("Back", callback_data=str(LINKS)),
-            InlineKeyboardButton("End", callback_data=str(QUIT)),
+            InlineKeyboardButton("Back", callback_data="LINKS"),
+            InlineKeyboardButton("End", callback_data="QUIT"),
         ]
     )
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -460,7 +460,7 @@ def qna(update: Update, context: CallbackContext):
     keyboard.append(
         [
             InlineKeyboardButton("Back", callback_data="BACK"),
-            InlineKeyboardButton("Delete", callback_data=("DELETE"),
+            InlineKeyboardButton("Delete", callback_data="DELETE"),
             InlineKeyboardButton("End", callback_data="QUIT"),
         ]
     )
@@ -528,8 +528,8 @@ def delete_user_answer_menu(update: Update, context: CallbackContext):
         keyboard[0].append(InlineKeyboardButton("Q" + str(a+1) + " Answer", callback_data="qna_"+str(a)))
     keyboard.append(
         [
-            InlineKeyboardButton("Back", callback_data=str(QNA)),
-            InlineKeyboardButton("End", callback_data=str(QUIT)),
+            InlineKeyboardButton("Back", callback_data="QNA",
+            InlineKeyboardButton("End", callback_data="QUIT",
         ]
     )
     reply_markup = InlineKeyboardMarkup(keyboard)
