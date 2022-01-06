@@ -423,7 +423,7 @@ def delete_link_menu(update: Update, context: CallbackContext):
     query.edit_message_text(
         text=msg, reply_markup=reply_markup, parse_mode='html',disable_web_page_preview=True
     )
-    return "DELETE_LINK
+    return "DELETE_LINK"
 
 def delete_link(update: Update, context: CallbackContext):
     logger.info("we are in this state")
