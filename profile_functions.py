@@ -400,6 +400,40 @@ def edit_link_url(update: Update, context: CallbackContext):
 
     return links(update, context)
 
+def delete_link_menu(update: Update, context: CallbackContext):
+    query = update.callback_query
+    query.answer()
+    username = query.message.chat.username
+    user_links = db.get_links(username)
+    for link in user_links:
+        msg = "<b>"+link["link_description"]+"</b>: "
+        msg += link["link"] + "\n\n"
+    keyboard = [[]]
+    num_links = len(user_links)
+    for i in range(num_links):
+        keyboard[0].append(InlineKeyboardButton("Delete " + user_links[i]["link_description"], callback_data="LINK_"+user_links[i]["link_description"])) 
+    keyboard.append(
+        [
+            InlineKeyboardButton("Back", callback_data=str(LINKS)),
+            InlineKeyboardButton("End", callback_data=str(QUIT)),
+        ]
+    )
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    query.edit_message_text(
+        text=msg, reply_markup=reply_markup, parse_mode='html',disable_web_page_preview=True
+    )
+    return "DELETE_LINK
+
+def delete_link(update: Update, context: CallbackContext):
+    logger.info("we are in this state")
+    data = update.callback_query.data
+    query = update.callback_query
+    query.answer()
+    username = query.message.chat.username
+    link_description_old = data[5:]
+    db.delete_link(username,link_description_old)
+    return "THIRD"
+
 ########################### Edit Question Functions ###################################
 ### FOR QNA FUNCTIONS ###
 def qna(update: Update, context: CallbackContext):
@@ -424,6 +458,7 @@ def qna(update: Update, context: CallbackContext):
     keyboard.append(
         [
             InlineKeyboardButton("Back", callback_data="BACK"),
+            InlineKeyboardButton("Delete", callback_data=("DELETE)),
             InlineKeyboardButton("End", callback_data="QUIT"),
         ]
     )
@@ -472,3 +507,42 @@ def user_answer(update: Update, context: CallbackContext):
     update.message.reply_text(text=msg, parse_mode='html')
 
     return qna(update, context)
+
+# users can select which answer to delete
+def delete_user_answer_menu(update: Update, context: CallbackContext):
+    query = update.callback_query
+    query.answer()
+    username = query.message.chat.username
+    user_questions = db.get_question(username)
+    msg = "Answer any of the following questions" + "\n\n"
+    for q in user_questions:
+        msg += "<b>"+q["question"]+"</b>: \n"
+        msg += q["answer"] + "\n\n"
+    context.user_data["all_questions"] = [q["question"] for q in user_questions] # to store the order of the questions 
+    context.user_data["all_answers"] = [q["answer"] for q in user_questions] # to store the order of the answers
+    keyboard = [[]]
+    num_answers = len(user_questions)
+    for a in range(num_answers):
+        keyboard[0].append(InlineKeyboardButton("Q" + str(a+1) + " Answer", callback_data="qna_"+str(a)))
+    keyboard.append(
+        [
+            InlineKeyboardButton("Back", callback_data=str(QNA)),
+            InlineKeyboardButton("End", callback_data=str(QUIT)),
+        ]
+    )
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    query.edit_message_text(
+        text=msg, reply_markup=reply_markup, parse_mode='html',disable_web_page_preview=True
+    )
+    return "DELETE_ANSWER"
+
+# this function deletes the answer
+def delete_user_answer(update: Update, context: CallbackContext):
+    data = update.callback_query.data
+    query = update.callback_query
+    query.answer()
+    username = query.message.chat.username
+    qna_number = int(data[4:])
+    qna_question = context.user_data["all_questions"][qna_number]
+    db.delete_answer(username,qna_question)
+    return "FOURTH"
