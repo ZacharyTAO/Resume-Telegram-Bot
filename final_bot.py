@@ -14,6 +14,7 @@ from telegram.ext import (
 )
 from view_functions import *
 from profile_functions import *
+import pyqrcode
 
 # Enable logging
 logging.basicConfig(
@@ -24,16 +25,34 @@ logger = logging.getLogger(__name__)
 
 load_dotenv("./.env")
 TOKEN = os.getenv("token")
-bot = Bot(TOKEN)
 
 db = DBHelper()
 
 ### START FUNCTIONS ###
 def start(update: Update, context: CallbackContext):
     """To start the bot"""
+    # Check if deeplink param exist if not then give basic instructions
+    if len(context.args) == 0:
+        update.message.reply_text("Hello! This bot will help you engage potential recruiters.")
+        update.message.reply_text("For recruiters, click /view" + "\nFor applicants, click /profile")
+        return ConversationHandler.END
 
-    update.message.reply_text("Hello! This bot will help you engage potential recruiters.")
-    update.message.reply_text("For recruiters, click /view" + "\nFor applicants, click /profile")
+    username = context.args[0]
+
+    update.message.reply_text("Hello there! Please wait a moment while the bot retrieve the info for <b>{}</b>".format(username), parse_mode="HTML")
+
+    context.user_data["viewed_username"] = username
+    return view_user_menu(update, context)
+
+def gen_qrcode(update: Update, context: CallbackContext):
+    url = "https://t.me/{}?start={}".format(context.bot.username, update.message.chat.username)
+    link = pyqrcode.create(url)
+    # Create the QRCode in the server
+    link.png('bot.png', scale = 8)
+    
+    message = "You can share this URL {} or QR code to potential recruiters for them to view your profile.".format(url)
+    # Send the QRCode to user
+    update.message.reply_photo(open('bot.png', 'rb'), caption = message)
 
 ### FOR END FUNCTION ###
 # Returns `ConversationHandler.END`, which tells the ConversationHandler that the conversation is over 
@@ -41,6 +60,8 @@ def end(update: Update, context: CallbackContext):
     query = update.callback_query
     query.answer()
     query.edit_message_text(text="See you next time!")
+    context.user_data["viewed_username"] = None
+    context.user_data["viewed_profile"] = None
     return ConversationHandler.END
 ###
 
@@ -50,14 +71,14 @@ def error(update: Update, context: CallbackContext):
 
 def exit_convo(update: Update, context: CallbackContext):
     update.message.reply_text("See you next time!")
+    context.user_data["viewed_username"] = None
+    context.user_data["viewed_profile"] = None
     return ConversationHandler.END
 
 ### FOR MAIN FUNCTION TO RUN THE BOT###
 def main():
     updater = Updater(TOKEN)
     dispatcher = updater.dispatcher
-
-    start_point = CommandHandler('start', start)
 
     applicant_convo = ConversationHandler(
         entry_points=[CommandHandler('profile', profile)], #profile function 
@@ -145,7 +166,10 @@ def main():
     )
     
     recruiter_convo = ConversationHandler(
-        entry_points=[CommandHandler('view', view)],
+        entry_points=[
+            CommandHandler('view', view),
+            CommandHandler('start', start)
+        ],
         states = {
             "USERNAME": [
                 CommandHandler('exit', exit_convo),
@@ -163,9 +187,9 @@ def main():
     )
 
     # Add ConversationHandler to dispatcher that will be used for handling updates
-    dispatcher.add_handler(start_point)
     dispatcher.add_handler(applicant_convo)
     dispatcher.add_handler(recruiter_convo)
+    dispatcher.add_handler(CommandHandler('share', gen_qrcode))
     dispatcher.add_error_handler(error)
 
 

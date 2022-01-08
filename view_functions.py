@@ -12,12 +12,15 @@ def view(update: Update, context: CallbackContext):
     return "USERNAME"
 
 def view_user_menu(update: Update, context: CallbackContext):
-    username = update.message.text
+    if context.user_data["viewed_username"] != None:
+        username = context.user_data["viewed_username"]
+    else:
+        username = update.message.text
     
     user = db.get_profile(username)
 
     if len(user) == 0:
-        update.message.reply_text("Oops user not found. Please enter a valid user or use /exit to exit")
+        update.message.reply_text("Oops user <b>{}</b> record is not found. Please enter a valid user or use /exit to exit".format(username), parse_mode= "HTML")
         return "USERNAME"
 
     user_particulars = user[0]

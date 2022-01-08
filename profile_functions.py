@@ -1,13 +1,11 @@
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup,  Update, Bot
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup,  Update
 from telegram.ext import (
     CallbackContext,
-    ConversationHandler
 )
 import logging
 import os
 import re 
 
-  
 regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$' 
 
 from dbhelper import DBHelper
@@ -17,7 +15,6 @@ db = DBHelper()
 logger = logging.getLogger(__name__)
 load_dotenv("./.env")
 TOKEN = os.getenv("token")
-bot = Bot(TOKEN)
 
 # Check user is recorded, if not recorded then create profile, if created show main menu
 def profile(update: Update, context: CallbackContext):
@@ -397,7 +394,7 @@ def edit_link_url(update: Update, context: CallbackContext):
     update.message.reply_text(text=old_msg2,  parse_mode='html')
 
     for i in context.user_data['message_id']:
-        bot.delete_message(chat_id = update.message.chat.id, message_id = i)
+        context.bot.delete_message(chat_id = update.message.chat.id, message_id = i)
 
     return links(update, context)
 
