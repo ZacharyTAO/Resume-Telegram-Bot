@@ -12,7 +12,7 @@ def view(update: Update, context: CallbackContext):
     return "USERNAME"
 
 def view_user_menu(update: Update, context: CallbackContext):
-    if context.user_data["viewed_username"] != None:
+    if "viewed_username" in context.user_data and context.user_data["viewed_username"] != None:
         username = context.user_data["viewed_username"]
     else:
         username = update.message.text
