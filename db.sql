@@ -16,7 +16,7 @@ DROP TABLE IF EXISTS user_answers;
 CREATE TABLE user_answers (
 	username varchar(100) not null,
     question varchar(100) not null,
-    answer text not null,
+    answer longtext not null,
     constraint PK_user_answers primary key (username, question),
     foreign key(username) references users(username)
 );
@@ -25,9 +25,9 @@ DROP TABLE IF EXISTS user_links;
 CREATE TABLE user_links(
     username varchar(100) not null,
     link varchar(100) not null,
-    link_description text not null,
+    link_description longtext not null,
     constraint PK_user_links primary key (username, link_description), 
     foreign key(username) references users(username)
-)
+);
 
 

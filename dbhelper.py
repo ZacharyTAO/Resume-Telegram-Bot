@@ -5,13 +5,13 @@ class DBHelper:
 
     def __init__(self):
         #connect to RDS database
-        self.host = "database-telebot.c9aptwswszpo.us-east-1.rds.amazonaws.com" #RDS address 
-        self.user = "admin" 
-        self.password = "root123456"
+        # self.host = "database-telebot.c9aptwswszpo.us-east-1.rds.amazonaws.com" #RDS address 
+        # self.user = "admin" 
+        # self.password = "root123456"
         self.db = "telebot"
-        # self.host = "localhost"
-        # self.user = "root"
-        # self.password = ""
+        self.host = "localhost"
+        self.user = "root"
+        self.password = "ZheTao99!"
         # self.db = "telebot"
         self.port = 3306
     
